@@ -40,6 +40,21 @@ public final class CRApi {
 		}
 	}
 	
+	public ClanDescription searchForClan(String name, int minMembers, int minScore) {
+		JSONObject data;
+		try {
+			data = request("clans?name=" + URLEncoder.encode(name, ENCODING)
+					+ "&mimMembers=" + minMembers
+					+ "&minScore=" + minScore
+					+ "&limit=1")
+					.getJSONArray("items").getJSONObject(0);
+			return new ClanDescription(data);
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
 	public Clan getClanByTag(String tag) {
 		JSONObject data;
 		try {
@@ -53,6 +68,10 @@ public final class CRApi {
 	
 	public Clan getClanByName(String name) {
 		return getClanByTag(searchForClan(name).tag);
+	}
+	
+	public Clan getClanByName(String name, int minMembers, int minScore) {
+		return getClanByTag(searchForClan(name, minMembers, minScore).tag);
 	}
 	
 	public Player getCompleteProfil(AbstractPlayer player) {

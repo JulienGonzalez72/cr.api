@@ -17,9 +17,9 @@ public class Clan extends ClanDescription {
 		super(data);
 		type = retrieve("tag");
 		description = retrieve("description");
-		clanChestStatus = retrieve("clanChestStatus");
-		clanChestPoints = retrieve("clanChestPoints");
-		clanChestLevel = retrieve("clanChestLevel");
+		clanChestStatus = retrieveOp("clanChestStatus");
+		clanChestPoints = retrieveOp("clanChestPoints");
+		clanChestLevel = retrieveOp("clanChestLevel");
 		memberList = retrieveList("memberList", ClanPlayer.class);
 	}
 	

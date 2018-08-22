@@ -19,9 +19,18 @@ public class Main {
 		System.out.println("Trophées de Julien : " + julien.trophies);
 		System.out.println("Tag de Julien : " + julien.tag);
 		
-		for (Player pl : api.getCompleteProfils(c.memberList)) {
+		/*for (Player pl : api.getCompleteProfils(c.memberList)) {
 			System.out.println(pl.name + " : " + pl.getWinRate());
-		}
+		}*/
+		
+		// get a clan by its name, the second argument is the minimum members of the clan and the third is the minimum clan score (both optional)
+		Clan clan = api.getClanByName("Nova Esports", 49, 50000);
+		// get a player in this clan
+		ClanPlayer clanPlayer = clan.getPlayerByName("RIAN");
+		// get the complete profil of this player
+		Player player = api.getCompleteProfil(clanPlayer);
+		// now you can access all information about him, for example, his trophies number
+		System.out.println(player.trophies);
 	}
 	
 }
