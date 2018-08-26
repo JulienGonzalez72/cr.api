@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.json.JSONObject;
 
-public class Clan extends ClanDescription {
+public class Clan extends ClanSearch {
 	
 	public final String type;
 	public final String description;

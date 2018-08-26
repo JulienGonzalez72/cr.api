@@ -22,25 +22,27 @@ public final class CRApi {
 	private final String token;
 	
 	private List<Card> cards;
+	private List<Location> locations;
 	
 	public CRApi(String token) {
 		this.token = token;
 		getAllCards();
+		getAllLocations();
 	}
 	
-	public ClanDescription searchForClan(String name) {
+	public ClanSearch searchForClan(String name) {
 		JSONObject data;
 		try {
 			data = request("clans?name=" + URLEncoder.encode(name, ENCODING) + "&limit=1")
 					.getJSONArray("items").getJSONObject(0);
-			return new ClanDescription(data);
+			return new ClanSearch(data);
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
 	
-	public ClanDescription searchForClan(String name, int minMembers, int minScore) {
+	public ClanSearch searchForClan(String name, int minMembers, int minScore) {
 		JSONObject data;
 		try {
 			data = request("clans?name=" + URLEncoder.encode(name, ENCODING)
@@ -48,7 +50,7 @@ public final class CRApi {
 					+ "&minScore=" + minScore
 					+ "&limit=1")
 					.getJSONArray("items").getJSONObject(0);
-			return new ClanDescription(data);
+			return new ClanSearch(data);
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 			return null;
@@ -220,30 +222,63 @@ public final class CRApi {
 		return getBattleLog(playerTag).get(0);
 	}
 	
-	private JSONObject request(String operation) {
-		URL url;
-		try {
-			url = new URL("https://api.clashroyale.com/v1/" + operation);
-			HttpURLConnection co = (HttpURLConnection) url.openConnection();
-			co.setRequestProperty("Accept", "application/json");
-			co.setRequestProperty("Accept-Charset", ENCODING);
-			co.setRequestProperty("authorization", "Bearer " + token);
-			InputStreamReader input = new InputStreamReader(co.getInputStream());
-			BufferedReader reader = new BufferedReader(input);
-			String response = "", line;
-			while ((line = reader.readLine()) != null) {
-				response += line + "\n";
-			}
-			return new JSONObject(response);
-		} catch (FileNotFoundException e) {
-			return null;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
+	public List<Location> getAllLocations() {
+		if (locations != null) {
+			return locations;
 		}
+		locations = new ArrayList<>();
+		JSONObject data = request("locations");
+		JSONArray array = data.getJSONArray("items");
+		for (int i = 0; i < array.length(); i++) {
+			locations.add(new Location(array.getJSONObject(i)));
+		}
+		return locations;
+	}
+	
+	public Location getLocation(String name) {
+		return locations.stream()
+				.filter(l -> l.name.equalsIgnoreCase(name))
+				.findFirst()
+				.orElse(null);
+	}
+	
+	public List<RankedPlayer> getHighestPlayers(Location location, int limit) {
+		List<RankedPlayer> players = new ArrayList<>();
+		JSONObject data = request("locations/" + location.id + "/rankings/players?limit=" + limit);
+		JSONArray array = data.getJSONArray("items");
+		for (int i = 0; i < array.length(); i++) {
+			players.add(new RankedPlayer(array.getJSONObject(i)));
+		}
+		return players;
+	}
+	
+	public List<RankedPlayer> getHighestPlayers(Location location) {
+		return getHighestPlayers(location, 500);
+	}
+	
+	public List<RankedClan> getHighestClans(Location location, int limit) {
+		List<RankedClan> clans = new ArrayList<>();
+		JSONObject data = request("locations/" + location.id + "/rankings/clans?limit=" + limit);
+		JSONArray array = data.getJSONArray("items");
+		for (int i = 0; i < array.length(); i++) {
+			clans.add(new RankedClan(array.getJSONObject(i)));
+		}
+		return clans;
+	}
+	
+	public List<RankedClan> getHighestClans(Location location) {
+		return getHighestClans(location, 500);
+	}
+	
+	private JSONObject request(String operation) {
+		return new JSONObject(getResponse(operation));
 	}
 	
 	private JSONArray requestForArray(String operation) {
+		return new JSONArray(getResponse(operation));
+	}
+	
+	private String getResponse(String operation) {
 		URL url;
 		try {
 			url = new URL("https://api.clashroyale.com/v1/" + operation);
@@ -257,7 +292,7 @@ public final class CRApi {
 			while ((line = reader.readLine()) != null) {
 				response += line + "\n";
 			}
-			return new JSONArray(response);
+			return response;
 		} catch (FileNotFoundException e) {
 			return null;
 		} catch (IOException e) {

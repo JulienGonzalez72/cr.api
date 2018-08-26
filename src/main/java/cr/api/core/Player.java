@@ -24,7 +24,7 @@ public class Player extends AbstractPlayer {
 	public final Integer totalDonations;
 	public final Integer warDayWins;
 	public final Integer clanCardsCollected;
-	//public final String clan;
+	public final ClanDescription clan;
 	public final LeagueStatistics leagueStatistics;
 	public final List<Achievement> achievements;
 	public final List<PlayerCard> cards;
@@ -50,6 +50,7 @@ public class Player extends AbstractPlayer {
 		totalDonations = retrieve("totalDonations");
 		warDayWins = retrieve("warDayWins");
 		clanCardsCollected = retrieve("clanCardsCollected");
+		clan = retrieveData("clan", ClanDescription.class);
 		leagueStatistics = retrieveData("leagueStatistics", LeagueStatistics.class);
 		achievements = retrieveList("achievements", Achievement.class);
 		cards = retrieveList("cards", PlayerCard.class);
